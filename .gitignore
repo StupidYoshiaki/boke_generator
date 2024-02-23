@@ -1,0 +1,5 @@
+/src/test.py
+/src/tocsv.py
+/data
+/result/gpt_boke/v*/checkpoint-*
+/result/index/*
