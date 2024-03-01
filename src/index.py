@@ -11,6 +11,8 @@ import random
 import os
 import time
 
+import sys
+
 
 # 乱数シードの固定
 def seed_everything(seed=42):
@@ -48,11 +50,20 @@ if __name__ == '__main__':
     # 学習データの読み込み
     df = pd.read_csv(f'./data/data.csv', on_bad_lines='skip', engine='python')
     
-    # odaiカラムの重複を削除
-    df = df.drop_duplicates(subset="odai")
-    
-    # 10件でテスト
+    # 100件でテスト
     # df = df[:100]
+    
+    # idごとにvoteの最大値を持つ行を抽出
+    df = df.loc[df.groupby('id')['vote'].idxmax()]
+    
+    # voteが10以上の行を抽出
+    df = df[df["vote"] >= 10]
+    
+    # idを振り直す
+    df = df.reset_index(drop=True)
+    
+    # csvファイルに保存
+    df.to_csv("./data/data_for_index.csv", index=False)
     
     # sentense bert
     MODEL_NAME = "intfloat/multilingual-e5-large"

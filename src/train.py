@@ -6,10 +6,13 @@ import torch
 import pandas as pd
 import os
 
+# gpu使えるか確認
+print(torch.cuda.is_available())
+
 
 # モデルの読み込み
 # "rinna/japanese-gpt2-medium" "rinna/japanese-gpt-1b" "rinna/japanese-gpt2-small"
-model_name = "rinna/japanese-gpt2-medium"
+model_name = "rinna/japanese-gpt2-small"
 tokenizer = T5Tokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 

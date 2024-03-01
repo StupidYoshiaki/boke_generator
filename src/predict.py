@@ -68,25 +68,40 @@ def main():
     # インデックスを読み込む
     index_loaded = faiss.read_index("./result/index/odai_index.faiss")
     
-    df = pd.read_csv(f'./data/data.csv', on_bad_lines='skip', engine='python')
+    df = pd.read_csv(f'./data/data_for_index.csv', on_bad_lines='skip', engine='python')
+    
+    fn = "ippon"
     
     test = []
-    with open("./data/simple_odai.txt", "r") as f:
+    with open(f"./data/{fn}.txt", "r") as f:
         texts = f.read().split("\n")
         ids = search_odai(texts, model, index_loaded)
+        ids = ids.flatten()
         for id, text in zip(ids, texts):
-            # id
-            df_tmp = df[df["id"] == id[0]]
             # 最もindexが小さいものを選択
-            odai = df_tmp["odai"].iloc[0]
-            boke = df_tmp["boke"].iloc[0]
+            odai = df["odai"][id]
+            boke = df["boke"][id]
             # テストテキストを作成
-            text =  "お題:" + odai + " ボケ:" + boke + " お題:" + text + " ボケ:"
+            # text =  "お題:" + odai + " ボケ:" + boke + " お題:" + text + " ボケ:"
+            text = " お題:" + text + " ボケ:"
             test.append(text)
-            
+        
+        # for id, text in zip(ids, texts):
+        #     # id
+        #     df_tmp = df[df["id"] == id[0]]
+        #     print(id)
+        #     print(df_tmp)
+            # # 最もindexが小さいものを選択
+            # odai = df_tmp["odai"]
+            # boke = df_tmp["boke"]
+            # # テストテキストを作成
+            # text =  "お題:" + odai + " ボケ:" + boke + " お題:" + text + " ボケ:"
+            # test.append(text)
+        
+    # sys.exit()    
     
     # gptの読み込み
-    model_name = f"./result/gpt_boke/v{v_num}/checkpoint-7030"
+    model_name = f"./result/gpt_boke/v{v_num}/checkpoint-36730"
     tokenizer = T5Tokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name)
     model.to(device)
@@ -97,7 +112,7 @@ def main():
     # あいうえお順にソート
     test.sort()
 
-    with open(f"./result/gpt_boke/v{v_num}/boke_generated_simple.txt", "w") as f:
+    with open(f"./result/gpt_boke/v{v_num}/boke_generated_{fn}.txt", "w") as f:
         for odai in test:
             seed_sentence = odai
             generated_sentences = getarate_sentences(seed_sentence, tokenizer, model)
